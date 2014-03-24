@@ -15,5 +15,6 @@ namespace API {
 
   $api = new API();
   $api->addService(new Messenger());
+  $api->addService(new AllowOrigin($api));
   $api->run();
 }

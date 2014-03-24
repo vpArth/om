@@ -1,6 +1,8 @@
 <?php
 namespace API\Core;
 
+use API\Errors;
+
 /**
  * Class RouteData
  * Container for route information for Router::addRoute method
@@ -92,7 +94,7 @@ class Router implements IRouter
   protected function getParams($method)
   {
     $fv = array_merge($_GET, $_POST, $_FILES);
-    if ($method !== 'GET') {
+    if (!in_array($method, array('GET', 'OPTIONS'))) {
       $type = isset($_SERVER["HTTP_CONTENT_TYPE"])?$_SERVER["HTTP_CONTENT_TYPE"]:$_SERVER["CONTENT_TYPE"];
 
       if ($type && $type === 'application/json') {

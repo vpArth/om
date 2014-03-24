@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>OM Messenger</title>
+        <link rel="stylesheet" href="css/base.css" />
+        <script src="js/utils.js" ></script>
+        <script src="js/app.js" ></script>
+        <script src="js/jquery-1.11.0.min.js" ></script>
+    </head>
+    <body>
+        <div class="content-block">
+            <div class="view vcenter hcenter active">
+                    <div class="head"> Messenger</div>
+                <div class="vcenter h50p">
+                    <ul class="vmenu">
+                        <li class="info"></li>
+                        <li class="button" onclick="app.registerPage()">Register</li>
+                        <li class="button" onclick="app.loginPage()">Login</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="view vcenter hcenter">
+                <div class="head">Register<span class="me"></span></div>
+                <div class="vcenter h50p">
+                    <ul class="vmenu">
+                        <li class="info">Please fill followed fields</li>
+                        <li><input name="username" placeholder="Username"></input></li>
+                        <li><input name="email" placeholder="Email" type="email"></input></li>
+                        <li><input name="password" placeholder="Password" type="password"></input></li>
+                        <li><input name="confirm" placeholder="Confirm" type="password"></input></li>
+                        <li class="button" onclick="app.register()">Register</li>
+                        <li class="button" onclick="app.greetPage()">Back</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="view vcenter hcenter">
+                <div class="head">Login<span class="me"></span></div>
+                <div class="vcenter h50p">
+                    <ul class="vmenu">
+                        <li class="info">Please fill followed fields:</li>
+                        <li><input name="username" placeholder="Username"></input></li>
+                        <li><input name="password" placeholder="Password" type="password"></input></li>
+                        <li class="button" onclick="app.login()">Login</li>
+                        <li class="button" onclick="app.greetPage()">Back</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="view vcenter hcenter">
+                <div class="head">Messenger<span class="me"></span></div>
+                <div class="vcenter h50p">
+                    <ul class="vmenu">
+                        <li class="info">Menu</li>
+                        <li class="button" onclick="app.users()">Users</li>
+                        <li class="button" onclick="app.messages()">Messages</li>
+                        <li class="button" onclick="app.options()">Options</li>
+                        <li class="button" onclick="app.main()">Update</li>
+                        <li class="button" onclick="app.logout()">Logout</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="view vcenter hcenter">
+                <div class="head">Users<span class="me"></span></div>
+                <div class="vcenter h50p">
+                    <ul class="vmenu">
+                        <li class="info"></li>
+                        <li>
+                            <ul class="list"></ul>
+                        </li>
+                        <li>
+                            <ul class="hmenu">
+                            </ul>
+                        </li>
+                        <li class="button" style="position: relative;">
+                            <div class="paginator left"  onclick="app.usersPrev()">&lt;&lt;</div>
+                            <div class="paginator right" onclick="app.usersNext()">&gt;&gt;</div>
+                        </li>
+                        <li class="button" onclick="app.users()">Update</li>
+                        <li class="button" onclick="app.main()">Back</li>
+                        <li class="button" onclick="app.logout()">Logout</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="view vcenter hcenter">
+                <div class="head">Profile<span class="me"></span></div>
+                <div class="vcenter h50p">
+                    <ul class="vmenu">
+                        <li class="info"></li>
+                        <li>
+                            <ul class="list"></ul>
+                        </li>
+                        <li class="button" onclick="app.main()">Dialog</li>
+                        <li class="button" onclick="app.users()">Back</li>
+                        <li class="button" onclick="app.logout()">Logout</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="view vcenter hcenter">
+                <div class="head">Messages<span class="me"></span></div>
+                <div class="vcenter h50p">
+                    <ul class="vmenu">
+                        <li class="info"></li>
+                        <li class="button" onclick="app.messages()">Update</li>
+                        <li class="button" onclick="app.main()">Back</li>
+                        <li class="button" onclick="app.logout()">Logout</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="view vcenter hcenter">
+                <div class="head">Options<span class="me"></span></div>
+                <div class="vcenter h50p">
+                    <ul class="vmenu">
+                        <li class="info"></li>
+                        <li>
+                            <ul class="list"></ul>
+                        </li>
+                        <li class="button" onclick="app.updateFieldsPage()">Change Data</li>
+                        <li class="button" onclick="app.updatePassPage()">Change Password</li>
+                        <li class="button" onclick="app.main()">Back</li>
+                        <li class="button" onclick="app.logout()">Logout</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="view vcenter hcenter">
+                <div class="head">Update Fields<span class="me"></span></div>
+                <div class="vcenter h50p">
+                    <ul class="vmenu">
+                        <li class="info">Please fill followed fields:</li>
+                        <li><input name="username" placeholder="Username"></input></li>
+                        <li><input name="email" placeholder="Email" type="email"></input></li>
+                        <li class="button" onclick="app.updateFields()">Update</li>
+                        <li class="button" onclick="app.options()">Back</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="view vcenter hcenter">
+                <div class="head">Update Password<span class="me"></span></div>
+                <div class="vcenter h50p">
+                    <ul class="vmenu">
+                        <li class="info">Please enter your new password</li>
+                        <li><input name="password" placeholder="Password" type="password"></input></li>
+                        <li><input name="confirm" placeholder="Confirm" type="password"></input></li>
+                        <li class="button" onclick="app.updatePass()">Update</li>
+                        <li class="button" onclick="app.options()">Back</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="view vcenter hcenter shadow"></div>
+        </div>
+        <div class="debug-info"></div>
+    </body>
+</html>

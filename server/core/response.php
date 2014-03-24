@@ -29,6 +29,10 @@ class Response
   public function send(array $data)
   {
     ob_end_flush();
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Headers: Content-Type');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS');
+
     switch ($this->type) {
       default:
       case self::TYPE_JSON:

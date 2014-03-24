@@ -80,7 +80,8 @@ abstract class Model implements \ArrayAccess
     if(!$data) {
       $fields = isset($params['fields']) ? implode(',',$params['fields']) : '*';
       $size   = isset($params['size']) ? (int)$params['size'] : 5;
-      $offset = isset($params['page']) ? (int)$params['page']*$size : 0;
+      $page   = isset($params['page']) ? (int)$params['page'] : 1;
+      $offset = $page * $size;
 
       $table = static::$table;
       $where = array();
@@ -99,7 +100,9 @@ abstract class Model implements \ArrayAccess
       $count = $db->cell($countSQL, $phs);
       $data = array(
         'data' => $rows,
-        'count'=> $count
+        'count'=> $count,
+        'size' => $size,
+        'page' => $page
       );
     }
     Cache::getInstance()->set($key, $data, self::CACHE_TIME);

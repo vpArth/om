@@ -1,0 +1,185 @@
+*{
+    -webkit-text-size-adjust: none; /*фиксим баг в IOS cо шкалированием в landscape*/
+    outline: none; /*убираем рамку вокруг ссылок и кнопок*/
+    -webkit-touch-callout: none; /*если надо, то запрещаем выделение текста*/
+    -webkit-tap-highlight-color:rgba(0,0,0,0); /*убираем фон подсветки ссылок и кнопок*/
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden!important;
+}
+
+body {
+    color:#999;
+    font: 15px Arial, Helvetica, sans-serif;
+}
+li{
+    list-style-type: none;
+}
+a {
+    text-decoration: none;
+    color: #333;
+}
+.fl { float:  left!important;}
+.fr { float: right!important;}
+.clear { clear: both;}
+
+.content-block {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background: #366;
+}
+
+.vcenter {
+    margin: auto;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    bottom: 0;
+    top: 0;
+}
+.hcenter {
+    margin: auto;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+.view {
+    display: none;
+}
+
+.view.active {
+    display: block;
+    width: 90%;
+    height: 90%;
+    overflow-y: auto;
+    background: #9cc;
+}
+
+.h50p { height: 50%;}
+.w50p {  width: 50%;}
+.w90p {  width: 90%;}
+
+.tacenter {text-align: center;}
+
+a.item {
+    display: block;
+    font-size: 3em;
+    margin: 20px auto;
+    background: #5566ee;
+    padding: 20px 0;
+    cursor: pointer;
+}
+a.item:hover {
+    background: #6677ff;
+}
+a.item:active {
+    background: #7799ff;
+}
+
+.head {
+    background: #33ccff;
+    padding: 5px 0px;
+    margin: 0 auto 10px auto;
+    width: 100%;
+    text-align: center;
+}
+
+.vmenu {
+    padding: 0;
+    text-align: center;
+}
+
+.vmenu>li {
+    background: #acf;
+    margin: 5px auto;
+    font-size: 1.5em;
+}
+.vmenu>li.info {
+    background: none;
+    color: #666;
+}
+
+.vmenu>li input {
+    text-align: center;
+    border: none;
+    background: #ccf;
+    width: 70%;
+    font-size: 1em;
+    color: #999;
+}
+.vmenu>li.button {
+    cursor: pointer;
+}
+.vmenu>li.button:hover {
+    background: #bdf;
+}
+.vmenu>li.button:active {
+    background: #cef;
+}
+
+.list {
+    background: #ccc;
+    font-size: 17px;
+    text-align: left;
+    max-height: 120px;
+    overflow-y: auto;
+}
+.list>li span.link {
+    cursor: pointer;
+}
+.list>li:hover span.link {
+    color: #333;
+}
+
+.bullet {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border-radius: 100%;
+    margin: 0 5px;
+}
+.bullet.online {
+    background: #0e0;
+}
+.bullet.offline {
+    background: gray;
+}
+
+.head .me {
+    position: absolute;
+    display: block;
+    right: 10px;
+    color: #090;
+    top: 0px;
+    margin: auto;
+    line-height: 27px;
+}
+
+.view.shadow {
+    opacity: 0.5;
+    background: black;
+}
+
+.debug-info {
+    position: absolute;
+    bottom: 5px;
+    color: red;
+    right: 5%;
+    background: #eee;
+    opacity: 0.4;
+    width: 90%;
+    text-align: right;
+    z-index: 6000001;
+}
+
+.paginator { width:10%;height:100%;position:absolute;top:0; }
+.paginator.left  {left:0; }
+.paginator.right {right:0;}

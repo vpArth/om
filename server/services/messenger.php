@@ -30,6 +30,15 @@ class Messenger implements IService
   public function registerRoutes(Router $router)
   {
     $router->addRoute(new RouteData(array(
+      'verb' => 'GET',
+      'path' => "^/{$this->base}/ok$",
+      'classname' => $this,
+      'method' => 'ok',
+      'validators' => array(
+        'required' => array('token'),
+      )
+    )));
+    $router->addRoute(new RouteData(array(
       'verb' => 'POST',
       'path' => "^/{$this->base}/register$",
       'classname' => $this,
@@ -136,6 +145,11 @@ class Messenger implements IService
     $user = DB\User::getByToken($token);
     if (!$user) throw new ValidatorException('Wrong or expired token', Errors::BAD_TOKEN);
     return $user;
+  }
+  public function ok($fv)
+  {
+    $user = $this->auth($fv['token']);
+    return 'ok';
   }
 
   //Logout

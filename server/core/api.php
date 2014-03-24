@@ -32,6 +32,10 @@ class API
     $svc->registerRoutes($this->router);
     return $this;
   }
+  public function getResponse()
+  {
+    return $this->response();
+  }
 
   /**
    * Process API request
@@ -68,5 +72,7 @@ class API
       'time' =>  $cache->getQTime()
     );
     $this->response->send($res);
+    if($res['status'] == 500)
+      throw $e;
   }
 }
