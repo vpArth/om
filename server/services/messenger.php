@@ -107,7 +107,7 @@ class Messenger implements IService
     $user = DB\User::getByUsernameOrEmail($fv['username'], $fv['email']);
     if ($user) {
       $field = $user['username'] === $fv['username'] ? 'username' : 'email';
-      throw new ValidatorException("User with same $field already exists");
+      throw new ValidatorException("User with same $field already exists", Errors::UNIQUE_FAILED);
     }
     $user = new DB\User(array(
       'username' => $fv['username'],
@@ -122,8 +122,8 @@ class Messenger implements IService
   public function action_login(array $fv)
   {
     $user = DB\User::getByUsername($fv['username']);
-    if (!$user) throw new ValidatorException('Invalid credentials');
-    if(!$user->checkPass($fv['password'])) throw new ValidatorException('Invalid credentials');
+    if (!$user) throw new ValidatorException('Invalid credentials', Errors::BAD_CREDENTIALS);
+    if(!$user->checkPass($fv['password'])) throw new ValidatorException('Invalid credentials', Errors::BAD_CREDENTIALS);
     $user['last_login'] = time();
     $user->save();
     return array(
@@ -134,7 +134,7 @@ class Messenger implements IService
   private function auth($token)
   {
     $user = DB\User::getByToken($token);
-    if (!$user) throw new ValidatorException('Wrong or expired login');
+    if (!$user) throw new ValidatorException('Wrong or expired token', Errors::BAD_TOKEN);
     return $user;
   }
 
@@ -196,7 +196,7 @@ class Messenger implements IService
       $u = DB\User::getByUsernameOrEmail($fv['username'], $fv['email']);
       if ($u && $u['id']!==$user['id']) {
         $field = $u['username'] === $fv['username'] ? 'username' : 'email';
-        throw new ValidatorException("User with same $field already exists");
+        throw new ValidatorException("User with same $field already exists", Errors::UNIQUE_FAILED);
       }
     }
 

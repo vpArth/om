@@ -129,7 +129,7 @@ class Router implements IRouter
         if($matches)
           $params['__vars__'] = $matches;
         if (($error = $this->validate($data['validators'], $params)) !== self::VALIDATE_SUCCESS) {
-          throw new ValidatorException($error);
+          throw new ValidatorException($error, Errors::INVALID_PARAMS);
         }
         return $class->{$data['method']}($params);
       }

@@ -41,6 +41,7 @@ class API
   {
     //todo: add error codes later
     $res = array();
+    $res['status'] = 0;
     try {
       if ($r = $this->router->execURI())
         $res['result'] = $r;
@@ -51,9 +52,7 @@ class API
         case 'API\Core\RouterException': $res['type'] = 'routing'; break;
         case 'API\Core\ValidatorException': $res['type'] = 'validation'; break;
       }
-      $res['status'] = 'fail';
-      $res['code'] = 500;
-      $error = $e;
+      $res['status'] = $e->getCode() ?: 500;
     }
 
     $res['time'] = microtime(1) - $this->start;
@@ -68,9 +67,6 @@ class API
       'count' => $cache->getQCount(),
       'time' =>  $cache->getQTime()
     );
-    if(!isset($e)) {
-      $res['status'] = 'ok';
-    }
     $this->response->send($res);
   }
 }
