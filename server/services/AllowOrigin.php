@@ -38,7 +38,7 @@ class AllowOrigin implements IService
   //API actions
 
   //Login
-  public function ping(array $fv)
+  public function ping()
   {
   }
 

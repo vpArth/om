@@ -1,4 +1,5 @@
 function log(){console.log(arguments);}
+
 var cook = {
     authToken: 'auth_token',
     backView: 'last_view',
@@ -65,19 +66,23 @@ function API(baseUri) {
         });
     }
     function debug(data) {
-        if (!data) return;
-        var time = data.time.toFixed(3) + 'ms';
-        var db_num = data.db_count;
-        var db_time = Object.keys(data.db_queries).map(function(i){
-          return data.db_queries[i].executionMS;
-        }).reduce(function(a,b){
-            return a+b;
-        }, 0, log).toFixed(3) + 'ms';
+        if (!data) { $('.debug-info').text("No data");return;}
+        var time = (data.time*1000).toFixed(3) + 'ms';
+        var dbtime = (data.db.time*1000).toFixed(3) + 'ms';
+        var cachecount =
+            (data.cache.count.get) + '/' +
+            (data.cache.count.set) + '/' +
+            (data.cache.count.del) + '';
+        var cachetime =
+            (data.cache.time.get*1000).toFixed(3) + '/' +
+            (data.cache.time.set*1000).toFixed(3) + '/' +
+            (data.cache.time.del*1000).toFixed(3) + 'ms';
 
         $('.debug-info').text(
             [
                 time,
-                'DB: '+db_num+' ('+db_time+')'
+                'DB: '+data.db.count+' ('+dbtime+')',
+                'Cache: '+cachecount+' ('+cachetime+')',
             ].join('; ')
         );
     }
@@ -100,7 +105,11 @@ function API(baseUri) {
             return response(data, cb);
         });
     }
-    function messages() {
+    function messages(params, cb) {
+        params.token = cookie.get(cook.authToken);
+        request('GET', 'messages', params, function(data){
+            return response(data, cb);
+        });
     }
     function dialog() {
     }
@@ -135,7 +144,10 @@ function API(baseUri) {
     function checkAuth(cb) {
         var token = cookie.get(cook.authToken);
         request('GET', 'ok', {token: token}, function(data){
-            return cb(null, data.status == 0);
+            return response(data, function(err, result, debug){
+                if(err) return cb(err);
+                return cb(null, result.token, debug);
+            });
         });
     }
     function logout(cb) {
@@ -213,8 +225,8 @@ function App(api) {
     function init() {
         var token = cookie.get(cook.authToken);
         if (token) {
-            return api.checkAuth(function(err, isAuthorized){
-                if (isAuthorized) {
+            return api.checkAuth(function(err){
+                if (!err) {
                     toggleView('main');
                 }
             })
@@ -222,28 +234,33 @@ function App(api) {
         return 0;
     }
     function error(view, msg) {
+        var message = msg&&msg.message || msg || "Error";
         console.error(msg);
         if (msg instanceof APIError) {
             switch (msg.code) {
                 case errors.BAD_TOKEN:
-                    setTimeout(function(){toggleView('greet');}, 5000);
+                    setTimeout(function(){toggleView('greet');}, 3000);
                 break;
             }
         }
         // var
-        info = $('li.info', view);
+        var info = $('li.info', view);
         if(!info.attr('info'))
             info.attr('info', info.html());
-        if(info.th)
-            clearTimeout(info.th);
-        console.log('new');
-        info.th = setTimeout(function() {
-            console.log('reset');
+        var th = info.attr('timeout');
+        if(th) {
+            console.info('cancelled '+th);
+            clearTimeout(th);
+        }
+        th = setTimeout(function() {
             info.html(info.attr('info'));
             info.removeAttr('info');
-            delete info.th;
-        }, 10000);
-        info.html($('<span style="color: #f66; font-size: 14px;">'+msg+'</span>'));
+            console.info('finished '+info.attr('timeout'));
+            info.removeAttr('timeout');
+        }, 3000);
+        info.attr('timeout', th);
+        console.info('started '+th);
+        info.html($('<span style="color: #f66; font-size: 14px;">'+message+'</span>'));
     }
     function greetPage() {
         toggleView('greet');
@@ -271,7 +288,7 @@ function App(api) {
         if (!$('input[name=email]', view)[0].validity.valid)
             return error(view, 'Email format incorrect');
         api.register(data, function(err, result){
-            if(err) return error(view, err.message);
+            if(err) return error(view, err);
             toggleView('login');
         })
         return true;
@@ -289,7 +306,7 @@ function App(api) {
         if ((data.username === self.userdata.username) && (data.email === self.userdata.email))
             return error(view, 'Nothing changed...');
         api.updateProfile(data, function(err, result){
-            if(err) return error(view, err.message);
+            if(err) return error(view, err);
             setTimeout(function(){options()}, 2000);
         })
     }
@@ -304,7 +321,7 @@ function App(api) {
         if (data.password !== data.confirm)
             return error(view, 'Passwords do not equals');
         api.updateProfile(data, function(err, result){
-            if(err) return error(view, err.message);
+            if(err) return error(view, err);
             setTimeout(function(){options()}, 2000);
         })
     }
@@ -318,7 +335,7 @@ function App(api) {
             return error(view, 'Please fill all fields');
 
         api.login(data, function(err, token, debug){
-            if(err) return error(view, err.message);
+            if(err) return error(view, err);
             cookie.set(cook.authToken, token);
             self.username = data.username;
             toggleView('main');
@@ -327,7 +344,7 @@ function App(api) {
     }
     function logout() {
         api.logout(function(err, success){
-            if(err) return error(getView(), err.message);
+            if(err) return error(getView(), err);
             if(success) {
                 cookie.del(cook.authToken);
                 return toggleView('greet');
@@ -340,16 +357,29 @@ function App(api) {
     function getOnlineBullet(online) {
         return '<div class="bullet '+(online?'online':'offline')+'" ></div>';
     }
-    function users() {
+    function users(page) {
         var view = getView();
-        var page = self.user_page || 0;
+        // if(typeof page === 'undefined') page = self.user_page || 0;
+        if(typeof page === 'undefined') page = self.user_page || 0;
         api.users({
             page: page,
             size: 5
         }, function(err, result) {
-            if(err) return error(view, err.message);
+            if(err) return error(view, err);
             self.user_pages = Math.ceil(result.count/result.size);
+
             var view = getView('users');
+
+            var start = +result.page * parseInt(result.size)+1;
+            var end = Math.min(start-1 + parseInt(result.size), result.count);
+            $('.info', view).text('Users ('+start+' - '+end+' from '+result.count+')');
+
+            //hide prev/next
+            var prev_arrow = (page == 0) ? 'hide' : 'show';
+            var next_arrow = (page == self.user_pages - 1) ? 'hide' : 'show';
+            $('.paginator.left', view)[prev_arrow]();
+            $('.paginator.right', view)[next_arrow]();
+
             var ul = $('.list', view);
             var html = '';
             for (var i = 0, n = result.data.length; i<n; i++) {
@@ -362,9 +392,6 @@ function App(api) {
             }
             ul.html(html);
 
-            var start = +result.page * parseInt(result.size)+1;
-            var end = Math.min(start-1 + parseInt(result.size), result.count);
-            $('.info', view).text('Users ('+start+' - '+end+' from '+result.count+')');
             toggleView('users');
         });
     }
@@ -379,7 +406,7 @@ function App(api) {
     function profile(id) {
         api.profile(id, function (err, result) {
             if (err) {
-                return error(getView(), err.message);
+                return error(getView(), err);
             }
 
             var view = getView('profile');
@@ -394,13 +421,47 @@ function App(api) {
             toggleView('profile');
         });
     }
-    function messages() {
-        toggleView('messages');
+    function messages(page) {
+        var view = getView();
+        if(typeof page === 'undefined') page = self.msg_page || 0;
+        api.messages({
+            page: page,
+            size: 15,
+            cut: 25
+        }, function(err, result){
+            if(err) return error(view, err);
+            self.msg_pages = Math.ceil(result.count/result.size);
+            var view = getView('messages');
+            var start = +result.page * parseInt(result.size)+1;
+            var end = Math.min(start-1 + parseInt(result.size), result.count);
+            $('.info', view).text('Messages ('+start+' - '+end+' from '+result.count+')');
+
+            //hide prev/next
+            var prev_arrow = (page == 0) ? 'hide' : 'show';
+            var next_arrow = (page == self.user_pages - 1) ? 'hide' : 'show';
+            $('.paginator.left', view)[prev_arrow]();
+            $('.paginator.right', view)[next_arrow]();
+
+            var ul = $('.list', view);
+            var html = '';
+            for (var i = 0, n = result.data.length; i<n; i++) {
+                var row = result.data[i];
+                html +=
+                '<li onclick="app.profile('+row.from_id+');">'+
+                    getOnlineBullet(row.online)+
+                    '<span class="link">'+(row.from)+':&nbsp;</span>'+
+                    '<span>'+(row.text)+'</span>'+
+                '</li>';
+            }
+            ul.html(html);
+
+            toggleView('messages');
+        });
     }
     function options() {
         api.options(function (err, result) {
             if (err) {
-                return error(getView(), err.message);
+                return error(getView(), err);
             }
             self.userdata = result;
             var view = getView('options');
@@ -459,6 +520,9 @@ function App(api) {
     self.register = register;
     self.updateFields = updateFields;
     self.updatePass = updatePass;
+
+    self.error = error;
+    self.getView = getView;
 }
 
 wait(

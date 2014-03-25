@@ -1,9 +1,10 @@
 <?php
-namespace Tests\Core;
+
+namespace tests\core;
 
 use API\Core;
 
-require_once __DIR__ . "/../../core/router.php";
+require_once __DIR__ . "/../../core/Router.php";
 
 class Router extends \PHPUnit_Framework_TestCase
 {
@@ -16,7 +17,7 @@ class Router extends \PHPUnit_Framework_TestCase
     return $data;
   }
 
-  public function test_success()
+  public function testSuccess()
   {
     $router = Core\Router::getInstance();
     $router->addRoute(new Core\RouteData([
@@ -31,7 +32,7 @@ class Router extends \PHPUnit_Framework_TestCase
     $this->assertEquals($router->execURI()['somequery'], 5);
   }
 
-  public function test_fails()
+  public function testFails()
   {
     $router = Core\Router::getInstance();
     $router->addRoute(new Core\RouteData([
@@ -63,5 +64,3 @@ class Router extends \PHPUnit_Framework_TestCase
   {
   }
 }
-
-?>

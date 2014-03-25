@@ -50,7 +50,7 @@ class API
       if ($r = $this->router->execURI())
         $res['result'] = $r;
     } catch (\Exception $e) {
-      $res['error'] = $e->getMessage();//'Something wrong happened';
+      $res['message'] = $e->getMessage();//'Something wrong happened';
       switch(get_class($e)) {
         default: $res['type'] = 'internal'; break;
         case 'API\Core\RouterException': $res['type'] = 'routing'; break;
@@ -58,19 +58,20 @@ class API
       }
       $res['status'] = $e->getCode() ?: 500;
     }
-
-    $res['time'] = microtime(1) - $this->start;
+    $debug = array();
+    $debug['time'] = microtime(1) - $this->start;
 
     $db = Core\DB\DB::getInstance();
-    $res['db'] = array(
+    $debug['db'] = array(
       'count' => $db->getQCount(),
       'time' =>  $db->getQTime()
     );
     $cache = Core\DB\Cache::getInstance();
-    $res['cache'] = array(
+    $debug['cache'] = array(
       'count' => $cache->getQCount(),
       'time' =>  $cache->getQTime()
     );
+    $res['debug'] = $debug;
     $this->response->send($res);
     if($res['status'] == 500)
       throw $e;

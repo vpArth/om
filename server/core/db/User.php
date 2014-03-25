@@ -46,9 +46,10 @@ class User extends Model
   public static function getByToken($token)
   {
     $cache = Cache::getInstance();
-    $id = $cache->get('authTokens_'.$token);
-    if (!$id) return false;
-    return self::getById($id);
+    $userId = $cache->get('authTokens_'.$token);
+    $cache->set('authTokens_'.$token, $userId, 7200); //update token lifetime
+    if (!$userId) return false;
+    return self::getById($userId);
   }
 
   public static function getByUsername($username)

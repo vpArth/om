@@ -1,9 +1,10 @@
 <?php
-namespace Tests\Core;
+
+namespace tests\core;
 
 use API\Core;
 
-require_once __DIR__ . "/../../core/loader.php";
+require_once __DIR__ . "/../../core/Loader.php";
 
 class Loader extends \PHPUnit_Framework_TestCase
 {
@@ -12,22 +13,22 @@ class Loader extends \PHPUnit_Framework_TestCase
     Core\Loader::getInstance()->reg();
   }
 
-  public function test_singleton()
+  public function testSingleton()
   {
     $loader1 = Core\Loader::getInstance();
     $loader2 = Core\Loader::getInstance();
     $this->assertTrue($loader1 === $loader2);
   }
 
-  public function test_simple_class()
+  public function testSimpleClass()
   {
-    $a = new Loader\A();
-    $this->assertEquals($a->foo(), 'A');
-    $b = new Loader\B();
-    $this->assertEquals($b->foo(), 'B');
+    $classA = new Loader\A();
+    $this->assertEquals($classA->foo(), 'A');
+    $classB = new Loader\B();
+    $this->assertEquals($classB->foo(), 'B');
   }
 
-  public function test_not_found()
+  public function testNotFound()
   {
     try {
       new Core\Abracadabra();
@@ -42,5 +43,3 @@ class Loader extends \PHPUnit_Framework_TestCase
     Core\Loader::getInstance()->unreg();
   }
 }
-
-?>

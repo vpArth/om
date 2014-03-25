@@ -26,7 +26,8 @@ class RouteData
     $this->validators = isset($data['validators']) ? $data['validators'] : array();
   }
 
-  public function getData() {
+  public function getData()
+  {
     return array(
       'verb' => $this->verb,
       'path' => $this->path,
@@ -103,6 +104,8 @@ class Router implements IRouter
           $fv = array_replace($fv, $body);
       }
     }
+    if ($token = isset($_SERVER["AUTHORIZATION"])?$_SERVER["AUTHORIZATION"]:false)
+      $fv['token'] = $token;
     unset($_GET, $_POST, $_FILES, $_REQUEST);
     //here can be some filters, modifications
     return $fv;
@@ -143,7 +146,8 @@ class Router implements IRouter
    * required: ['field1', 'field2']
    * regular: [['field1'=>'/^reg1$/', 'field2'=>'/^reg2$/'], ['field1'=>'/^reg3$/']]
    */
-  private function validate($validators, $data) {
+  private function validate($validators, $data)
+  {
     foreach ($validators as $type => $vals) {
       switch ($type) {
         case 'required':

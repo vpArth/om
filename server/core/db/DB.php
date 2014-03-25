@@ -89,12 +89,13 @@ class DB extends Single
     return $this;
   }
 
-  public function getLastId() {
+  public function getLastId()
+  {
     return $this->lastId;
   }
 
   public function getQCount() { return $this->queryCount; }
-  public function getQTime()  { return $this->queryTime; }
+  public function getQTime() { return $this->queryTime; }
 
   public function cell($sql, array $params = array(), $col = 0)
   {

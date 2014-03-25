@@ -10,6 +10,7 @@
     </head>
     <body>
         <div class="content-block">
+
             <div class="view vcenter hcenter active">
                     <div class="head"> Messenger</div>
                 <div class="vcenter h50p">
@@ -20,6 +21,7 @@
                     </ul>
                 </div>
             </div>
+
             <div class="view vcenter hcenter">
                 <div class="head">Register<span class="me"></span></div>
                 <div class="vcenter h50p">
@@ -34,31 +36,35 @@
                     </ul>
                 </div>
             </div>
+
             <div class="view vcenter hcenter">
                 <div class="head">Login<span class="me"></span></div>
                 <div class="vcenter h50p">
                     <ul class="vmenu">
                         <li class="info">Please fill followed fields:</li>
                         <li><input name="username" placeholder="Username"></input></li>
-                        <li><input name="password" placeholder="Password" type="password"></input></li>
+                        <li><input name="password" placeholder="Password" type="password"
+                                onkeyup="if(event.keyCode==13) app.login()"></input></li>
                         <li class="button" onclick="app.login()">Login</li>
                         <li class="button" onclick="app.greetPage()">Back</li>
                     </ul>
                 </div>
             </div>
+
             <div class="view vcenter hcenter">
                 <div class="head">Messenger<span class="me"></span></div>
                 <div class="vcenter h50p">
                     <ul class="vmenu">
                         <li class="info">Menu</li>
-                        <li class="button" onclick="app.users()">Users</li>
-                        <li class="button" onclick="app.messages()">Messages</li>
+                        <li class="button" onclick="app.users(0)">Users</li>
+                        <li class="button" onclick="app.messages(0)">Messages</li>
                         <li class="button" onclick="app.options()">Options</li>
                         <li class="button" onclick="app.main()">Update</li>
                         <li class="button" onclick="app.logout()">Logout</li>
                     </ul>
                 </div>
             </div>
+
             <div class="view vcenter hcenter">
                 <div class="head">Users<span class="me"></span></div>
                 <div class="vcenter h50p">
@@ -81,6 +87,7 @@
                     </ul>
                 </div>
             </div>
+
             <div class="view vcenter hcenter">
                 <div class="head">Profile<span class="me"></span></div>
                 <div class="vcenter h50p">
@@ -95,17 +102,22 @@
                     </ul>
                 </div>
             </div>
+
             <div class="view vcenter hcenter">
                 <div class="head">Messages<span class="me"></span></div>
                 <div class="vcenter h50p">
                     <ul class="vmenu">
                         <li class="info"></li>
+                        <li>
+                            <ul class="list"></ul>
+                        </li>
                         <li class="button" onclick="app.messages()">Update</li>
                         <li class="button" onclick="app.main()">Back</li>
                         <li class="button" onclick="app.logout()">Logout</li>
                     </ul>
                 </div>
             </div>
+
             <div class="view vcenter hcenter">
                 <div class="head">Options<span class="me"></span></div>
                 <div class="vcenter h50p">
@@ -121,6 +133,7 @@
                     </ul>
                 </div>
             </div>
+
             <div class="view vcenter hcenter">
                 <div class="head">Update Fields<span class="me"></span></div>
                 <div class="vcenter h50p">
@@ -133,6 +146,7 @@
                     </ul>
                 </div>
             </div>
+
             <div class="view vcenter hcenter">
                 <div class="head">Update Password<span class="me"></span></div>
                 <div class="vcenter h50p">

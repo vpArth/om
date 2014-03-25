@@ -70,7 +70,7 @@ class Messenger implements IService
       'verb' => 'GET',
       'path' => "^/{$this->base}/users$",
       'classname' => $this,
-      'method' => 'widget_users',
+      'method' => 'user_list',
       'validators' => array(
         'required' => array('token'),
         'regular'  => array(array('page'=>'/^\d+$/', 'size'=>'/^\d+$/'))
@@ -104,35 +104,63 @@ class Messenger implements IService
       )
     )));
 
+    $router->addRoute(new RouteData(array(
+      'verb' => 'GET',
+      'path' => "^/{$this->base}/messages$",
+      'classname' => $this,
+      'method' => 'message_list',
+      'validators' => array(
+        'required' => array('token'),
+        'regular'  => array(array('page'=>'/^\d+$/', 'size'=>'/^\d+$/', 'cut'=>'/^\d+$/'))
+      )
+    )));
+    $router->addRoute(new RouteData(array(
+      'verb' => 'GET',
+      'path' => "^/{$this->base}/messages/(\d+)$",
+      'classname' => $this,
+      'method' => 'action_dialog',
+      'validators' => array(
+        'required' => array('token'),
+      )
+    )));
+    $router->addRoute(new RouteData(array(
+      'verb' => 'POST',
+      'path' => "^/{$this->base}/messages/(\d+)$",
+      'classname' => $this,
+      'method' => 'message_post',
+      'validators' => array(
+        'required' => array('token'),
+      )
+    )));
+
   }
 
 
 
   //API actions
 
-  //Register
-  public function action_register(array $fv)
+  //Auth
+
+  public function action_register(array $form)
   {
-    $user = DB\User::getByUsernameOrEmail($fv['username'], $fv['email']);
+    $user = DB\User::getByUsernameOrEmail($form['username'], $form['email']);
     if ($user) {
-      $field = $user['username'] === $fv['username'] ? 'username' : 'email';
+      $field = $user['username'] === $form['username'] ? 'username' : 'email';
       throw new ValidatorException("User with same $field already exists", Errors::UNIQUE_FAILED);
     }
     $user = new DB\User(array(
-      'username' => $fv['username'],
-      'email'    => $fv['email'],
+      'username' => $form['username'],
+      'email'    => $form['email'],
       'created'  => time(),
     ));
-    $user->setPass($fv['password']);
+    $user->setPass($form['password']);
     $user->save();
   }
-
-  //Login
-  public function action_login(array $fv)
+  public function action_login(array $form)
   {
-    $user = DB\User::getByUsername($fv['username']);
+    $user = DB\User::getByUsername($form['username']);
     if (!$user) throw new ValidatorException('Invalid credentials', Errors::BAD_CREDENTIALS);
-    if(!$user->checkPass($fv['password'])) throw new ValidatorException('Invalid credentials', Errors::BAD_CREDENTIALS);
+    if(!$user->checkPass($form['password'])) throw new ValidatorException('Invalid credentials', Errors::BAD_CREDENTIALS);
     $user['last_login'] = time();
     $user->save();
     return array(
@@ -146,75 +174,104 @@ class Messenger implements IService
     if (!$user) throw new ValidatorException('Wrong or expired token', Errors::BAD_TOKEN);
     return $user;
   }
-  public function ok($fv)
+  public function ok($form)
   {
-    $user = $this->auth($fv['token']);
+    $this->auth($form['token']);
     return 'ok';
   }
-
-  //Logout
-  public function action_logout(array $fv)
+  public function action_logout(array $form)
   {
-    // $user = $this->auth($fv['token']);
-    DB\User::delToken($fv['token']);
+    // $user = $this->auth($form['token']);
+    DB\User::delToken($form['token']);
     return null;
   }
 
   //Users
-  public function widget_users(array $fv)
+
+  public function user_list(array $form)
   {
-    $user = $this->auth($fv['token']);
+    $user = $this->auth($form['token']);
 
     $params = array();
     $params['fields'] = array('id', 'username', 'email', 'last_login');
-    if (isset($fv['page']))
-      $params['page'] = $fv['page'];
-    if (isset($fv['size']))
-      $params['size'] = $fv['size'];
+    if (isset($form['page']))
+      $params['page'] = $form['page'];
+    if (isset($form['size']))
+      $params['size'] = $form['size'];
     $params['exclude'] = $user['id'];
 
     return $user::widget($params);
   }
-
-  public function action_profile(array $fv)
+  public function action_profile(array $form)
   {
-    $user = $this->auth($fv['token']);
-    $id = $fv['__vars__'][1][0];
-    $u = DB\User::getById($id);
-    if(!$u) throw new ValidatorException("User $id not found");
+    $user = $this->auth($form['token']);
+    $profile_id = $form['__vars__'][1][0];
+    if($profile_id==$user['id'])
+      return $user->profile();
+    $profile = DB\User::getById($profile_id);
+    if(!$profile) throw new ValidatorException("User $profile_id not found");
 
-    return $u->profile();
+    return $profile->profile();
   }
-  public function action_me(array $fv)
+  public function action_me(array $form)
   {
-    $user = $this->auth($fv['token']);
+    $user = $this->auth($form['token']);
     return $user->profile();
   }
-  public function action_options(array $fv)
+  public function action_options(array $form)
   {
-    $user = $this->auth($fv['token']);
+    $user = $this->auth($form['token']);
     $flag = 0;
     foreach (array('username', 'email') as $field) {
-      if (isset($fv[$field]) && $fv[$field] !== $user[$field]) {
+      if (isset($form[$field]) && $form[$field] !== $user[$field]) {
         $flag = 1;
-        $user[$field] = $fv[$field];
+        $user[$field] = $form[$field];
       }
     }
-    if (isset($fv['password']) && $fv['password'] !== $user['password']) {
+    if (isset($form['password']) && !$user->checkPass($form['password'])) {
       $flag += 2;
-      $user->setPass($fv['password']);
+      $user->setPass($form['password']);
     }
     if (!$flag) return 'No changes';
 
     if ($flag % 2) { //check unique
-      $u = DB\User::getByUsernameOrEmail($fv['username'], $fv['email']);
+      $u = DB\User::getByUsernameOrEmail($form['username'], $form['email']);
       if ($u && $u['id']!==$user['id']) {
-        $field = $u['username'] === $fv['username'] ? 'username' : 'email';
+        $field = $u['username'] === $form['username'] ? 'username' : 'email';
         throw new ValidatorException("User with same $field already exists", Errors::UNIQUE_FAILED);
       }
     }
 
     $user->save();
     return 'Success';
+  }
+
+  //Messages
+
+  public function message_list(array $form)
+  {
+    $user = $this->auth($form['token']);
+
+    $params = array();
+    if (isset($form['page']))
+      $params['page'] = $form['page'];
+    if (isset($form['size']))
+      $params['size'] = $form['size'];
+    if (isset($form['cut']))
+      $params['cut'] = $form['cut'];
+    $params['self'] = $user['id'];
+    $params['order'] = 'created DESC';
+
+    return DB\Message::data($params);
+  }
+  public function action_dialog(array $form)
+  {
+    $user = $this->auth($form['token']);
+    return 'ok';
+  }
+  public function message_post(array $form)
+  {
+    $user = $this->auth($form['token']);
+    return 'ok';
   }
 }
