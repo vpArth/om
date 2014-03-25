@@ -195,10 +195,15 @@ function App(api) {
         'updateFields',
         'updatePass'
     ];
+    var updates = {
+        users: [users, 10000],
+        messages: [messages, 5000],
+    }
     function updateUsername() {
         $('.head .me').text(self.username || '');
     }
     function toggleView(id, timeout) {
+        var lastId = views[$('.view.active').index()];
         if(!timeout) timeout = 50;
         setTimeout(function(){
             var index = views.indexOf(id);
@@ -206,12 +211,16 @@ function App(api) {
                 console.log('Wrong view id: '+id);
                 return;
             }
-
-            cookie.set(cook.backView, views[$('.view.active').index()]);
+            if(self.refreshId) { clearInterval(self.refreshId); self.refreshId = null; }
+            cookie.set(cook.backView, lastId);
             cookie.set(cook.currView, id);
             updateUsername();
             $('.view').removeClass('active');
             $('.view:eq('+index+')').addClass('active');
+
+            if(updates[id])
+                self.refreshId = setInterval(updates[id][0], updates[id][1]);
+
         }, timeout);
     }
     function getView(id) {
@@ -489,6 +498,11 @@ function App(api) {
         getView('updatePass').find('input').val('');
         toggleView('updatePass');
     }
+
+    function back() {
+        var last = cookie.get(cook.backView, 'main');
+        toggleView(last)
+    }
     // var exports = [
     //     'init', 'toggleView',
     //     'greetPage', 'loginPage', 'registerPage', 'main', 'options',
@@ -520,6 +534,8 @@ function App(api) {
     self.register = register;
     self.updateFields = updateFields;
     self.updatePass = updatePass;
+
+    self.back = back;
 
     self.error = error;
     self.getView = getView;
